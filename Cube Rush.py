@@ -82,7 +82,7 @@ rect4 = pygame.Rect(x+400, 200, 50, 50)
 obstacle = pygame.Rect(300,200,10,10)
 #Defining Game Sprites
 
-apple = pygame.image.load("assets/assets/Apple.png").convert_alpha
+# apple = pygame.image.load("assets/Apple.png").convert_alpha()
 bannana = pygame.image.load("assets/Bannana.png")
 ground_with_grass = pygame.image.load("assets/Ground_with_grass.png").convert_alpha()
 ground = pygame.image.load("assets/Ground.png").convert_alpha()
