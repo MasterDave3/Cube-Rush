@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ## Librarys
 
 ## Git stuff for me to remember
-git add –all
+git add -all
 
 git commit -m ‘add your changes here’
 
