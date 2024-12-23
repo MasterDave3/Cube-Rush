@@ -11,3 +11,10 @@ pip install -r requirements.txt
 ## How the project was build
 
 ## Librarys
+
+## Git stuff for me to remember
+git add –all
+
+git commit -m ‘add your changes here’
+
+git push --set-upstream
