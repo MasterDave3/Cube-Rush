@@ -108,6 +108,8 @@ def shot (bullet_x, bullet_y):
     global bullet_state
     bullet_state = "fired"
     DISPLAY.blit(bullet, (bullet_y, bullet_x))
+dinosaur = pygame.image.load("assets/One Armed Dinosaur.png").convert_alpha()
+dinosaur2 = pygame.transform.scale(dinosaur, (500, 500))
 
 
 
