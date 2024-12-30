@@ -1,5 +1,6 @@
-import pygame 
-import random
+import pygame # Importing pygame just cuz
+import random # Importing random for the lists of ground and clouds and other stuff
+import time  # Importing time for the bullet firing thing so far 
 pygame.init()
 
 #set game fps
@@ -60,17 +61,69 @@ ground_list3 = []
 ground_list4 = []
 ground2_list = []
 cloud_list = []
+font = pygame.font.Font
+last_bullet_time = 0
+
+# Snowflake pixel art
+snowflake_art_list = [
+    "  *  ",
+    " *** ",
+    "*****",
+    " *** ",
+    "  *  "
+]
+def create_snowflake_surface(snowflake_art_list, color):
+    """Creates a Pygame surface from snowflake pixel art."""
+    width = len(snowflake_art_list[0])
+    height = len(snowflake_art_list)
+    surface = pygame.Surface((width, height), pygame.SRCALPHA)
+    surface.fill((0, 0, 0, 0))  # Transparent background
+    for y, row in enumerate(snowflake_art_list):
+        for x, char in enumerate(row):
+            if char == "*":
+                surface.set_at((x, y), color)
+    return surface
+
+# Generate snowflakes at a random place
+class Snowflake:
+    def __init__(self, x, y, speed):
+        self.x = x
+        self.y = y
+        self.speed = speed
+        self.surface = create_snowflake_surface(snowflake_art_list, WHITE)
+
+    def move(self):
+        self.y += self.speed
+        if self.y > Y:
+            self.y = -10  # Reset snow to above the screen
+            self.x = random.randint(0, X - len(snowflake_art_list[0]))
+
+    def draw(self, DISPLAY):
+        DISPLAY.blit(self.surface, (self.x, self.y))
 points = 0
-lives = 3
+lives = 1
 font = pygame.font.SysFont(None, 36)
 fire_rate = 250
 last_bullet_time = 0
 spawn_rate = 500 
 last_spawn_time = 0
 player = pygame.Rect(30, 340, 50, 50)
+# Bullet stuff
+class Bullet:
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x, y, 10, 5)  # Bullet volume
+        self.speed = 5
+
+    def move(self):
+        self.rect.x += self.speed  # Move bullet sideways to the right
+
+    def draw(self, screen):
+        DISPLAY.blit(bullet2, (self.rect))  # Draw the bullet
+
+snowflakes = [Snowflake(random.randint(0, X - 5), random.randint(0, Y), random.randint(1, 3)) for _ in range(50)]
 def draw_text(text, font, color, x, y):
     surface = font.render(text, True, color)
-    DISPLAY.blit(surface, (x, y))
+    DISPLAY.blit(snow, (x, y))
 center = (x+200, 900)
 
 
@@ -100,16 +153,12 @@ cloud = pygame.image.load("assets/cloud.png").convert_alpha()
 cloud2 = pygame.transform.scale(cloud, (150, 100))
 bullet = pygame.image.load("assets/bullet.png").convert_alpha()
 bullet2 = pygame.transform.scale(bullet, (50, 50))
-bullet_x = 50
-bullet_y = 0
-bullet_state = "loaded"
-change_in_y_position_bullet = 4
-def shot (bullet_x, bullet_y):
-    global bullet_state
-    bullet_state = "fired"
-    DISPLAY.blit(bullet2, (bullet_y, bullet_x))
+
+
 dinosaur = pygame.image.load("assets/One Armed Dinosaur.png").convert_alpha()
 dinosaur2 = pygame.transform.scale(dinosaur, (500, 500))
+snow = pygame.image.load("assets/snow.png").convert_alpha()
+ground_with_snow = pygame.image.load("assets/ground_with_snow.png").convert_alpha()
 
 
 
@@ -124,7 +173,24 @@ fall_speed = 0
 
 
 
+# Function to reset the game
+def reset_game():
+    global points, lives, player, bullets, enemies, last_bullet_time, x, tri_x
+    points = 0
+    lives = 3
+    player = pygame.Rect(30, 340, 50, 50)
+    bullets = []
+    x = 0
+    tri_x = 0
+    last_bullet_time = 0
+    enemies[:] = [
+        pygame.Rect(x + 250, 270, zombie_rect.width, zombie_rect.height),
+        pygame.Rect(x + 650, 270, zombie_rect.width, zombie_rect.height),
+        pygame.Rect(x + 1050, 270, zombie_rect.width, zombie_rect.height),
+        pygame.Rect(x + 1450, 270, zombie_rect.width, zombie_rect.height),
+    ]
 while running:
+    current_time = time.time()  # Getting the current time for bullets
        
     
     tri_x = tri_x -2.25
@@ -140,20 +206,8 @@ while running:
         pygame.Rect(x+1850, 270,zombie_rect.width,zombie_rect.height),
         pygame.Rect(x+2250, 270,zombie_rect.width,zombie_rect.height),
         pygame.Rect(x+2650, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+3050, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+3450, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+3850, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+4250, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+4650, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+5050, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+5450, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+5850, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+6250, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+6650, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+7050, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+7450, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+7850, 270,zombie_rect.width,zombie_rect.height),
-        pygame.Rect(x+8250, 270,zombie_rect.width,zombie_rect.height)
+        pygame.Rect(x+3050, 270,zombie_rect.width,zombie_rect.height)
+        
     ]
 
     for event in pygame.event.get():
@@ -175,13 +229,15 @@ while running:
         player_y = 270
         fall_speed = 0
         jumpable = True
-
+    # Update snowflakes
+    for snowflake in snowflakes:
+        snowflake.move()
+    #Draw everything
     DISPLAY.fill(NIGHT_SKY_BLUE)
+    
 
 
-    if bullet_state == "fired":
-        shot(bullet_y, bullet_x)
-        bullet_x -= change_in_y_position_bullet
+
 
 
     #runs the game at chosen FPS
@@ -194,13 +250,38 @@ while running:
         fall_speed = -10   
         jumpable = False 
     if keys[pygame.K_SPACE]:
-        if bullet_state == "loaded":
-            bullet_y = player_y
-            #shot bullets
-            shot(bullet_y, bullet_x)
+#cheat code coming soon    
+    # Check if at least 1 second has passed since the last bullet was fired
+        if current_time - last_bullet_time >= 1:
+            bullet = Bullet(player.x + player.width, player.y + player.height // 8)
+            bullets.append(bullet)
+            last_bullet_time = current_time  # Updateing the last bullet time
+
+    # Move bullets and check for collisions with enemies
+    for bullet in bullets[:]:
+        bullet.move()
+        if bullet.rect.x > X:
+            bullets.remove(bullet)
+     # Check collision with each enemy
+        for enemy in enemies[:]:
+            if bullet.rect.colliderect(enemy):
+                enemies.remove(enemy)  # Removes the enemy when it is hit
+                bullets.remove(bullet)  # Removes the bullet when it hits the enemy
+                break  
+
+    for bullet in bullets:
+        bullet.draw(DISPLAY)
+
+    # Move bullets
+    for bullet in bullets[:]:
+        bullet.move()
+        # Remove bullet if it goes off screen
+        if bullet.rect.x > X:
+            bullets.remove(bullet)
                   
-    #if keys[pygame.K_DOWN]:
-    #    player.y +=5
+    # Draw and update bullets
+    for bullet in bullets:
+        bullet.draw(DISPLAY)
     clock.tick(FPS)
 
     #Drawing Rectangles
@@ -211,7 +292,17 @@ while running:
         DISPLAY.blit(zombie2,enemy.topleft)
 
         if player.colliderect(enemy):
-            print("you die")
+            lives -= 1
+            if lives <= 0:
+                DISPLAY.fill(BLACK)
+                game_over_text = font.render("Game Over! Restarting, PLease wait....", True, RED)  # Red font for Game Over
+                DISPLAY.blit(game_over_text, (X // 3 - 100, Y // 2))
+                pygame.display.flip()
+                pygame.time.delay(2000)
+                reset_game()
+            else:
+                player.x, player.y = 30, 340
+            break
         
     DISPLAY.blit(bullet2, (250, 250))
     #zombie3 = DISPLAY.blit(zombie2, (x+250, 255))
@@ -248,45 +339,56 @@ while running:
     #Loading sprites
     DISPLAY.blit(milk, (200, 5))
     moon4 = DISPLAY.blit(moon2, (5, 5))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+150, 350))
-    ground_with_grass2_1 = DISPLAY.blit(ground_with_grass,(x+180, 350))
-    DISPLAY.blit(ground_with_grass, (150, 390))
+    ground_with_grass2 = DISPLAY.blit(ground_with_snow,(x+150, 350))
+    ground_with_grass2_1 = DISPLAY.blit(ground_with_snow,(x+180, 350))
+    DISPLAY.blit(ground_with_snow, (150, 390))
 
-    for num in range(0,1000,1):
+    for num in range(0,100,1):
         DISPLAY.blit(ground,(x+(150)+(30*num),370))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list1.append(ground_rect)
 
-    for num in range(0,500,1):
+    for num in range(0,100,1):
         DISPLAY.blit(ground,(x+(150)+(30*num),350))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list2.append(ground_rect) 
 
-    for num in range(0,500,1):
-        DISPLAY.blit(ground_with_grass,(x+(150)+(30*num),320))
+    for num in range(0,100,1):
+        DISPLAY.blit(ground_with_snow,(x+(150)+(30*num),320))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list3.append(ground_rect)
 
-    for num in range(0,500,1):
+    for num in range(0,100,1):
         DISPLAY.blit(ground,(x+(150)+(30*num),390))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list4.append(ground_rect)  
 
-    for num in range(0,500,10):
+    for num in range(0,100,10):
         DISPLAY.blit(cloud2,(x+(195)+(30*num),35))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list1.append(ground_rect)
 
-    for num in range(0,500,10):
+    for num in range(0,100,10):
         DISPLAY.blit(cloud2,(x+(330)+(30*num),50))
         ground_rect = ground.get_rect()
         ground_rect = pygame.Rect(x+(150)+(30*num),370,ground_rect.width, ground_rect.height)
         ground_list1.append(ground_rect)
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+19, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+110, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+120, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+80, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+60, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+40, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+20, 390))
+    ground_with_snow2 = DISPLAY.blit(ground_with_snow,(x+10, 390))
+    
+    for snowflake in snowflakes:
+        snowflake.draw(DISPLAY)
 
 
     #make player not go through ground:
@@ -300,76 +402,7 @@ while running:
         player.bottom = 320
         fall_speed = 0
         jumpable = True
-
-
-    #for tile in ground_list1:
-    #    if player.colliderect(tile):
-    #        player.bottom = tile.top
-#
-    #for tile in ground_list2:
-    #    if player.colliderect(tile):
-    #        player.bottom = tile.top
-    #
-    #for tile in ground_list3:
-    #    if player.colliderect(tile):
-    #        player.bottom = tile.top
-    #
-    #for tile in ground_list4:
-    #    if player.colliderect(tile):
-    #        player.bottom = tile.top
-
-    #ground2 = DISPLAY.blit(ground,(x+150, 370))                
-    #ground3 = DISPLAY.blit(ground,(x+180, 370))
-    #ground4 = DISPLAY.blit(ground,(x+210, 370))
-    #ground5 = DISPLAY.blit(ground,(x+240, 370))
-    #ground6 = DISPLAY.blit(ground,(x+270, 370))
-    #ground7 = DISPLAY.blit(ground,(x+300, 370))
-    #ground8 = DISPLAY.blit(ground,(x+330, 370))
-    #ground9 = DISPLAY.blit(ground,(x+360, 370))
-    #ground10 = DISPLAY.blit(ground,(x+390, 370))
-    #ground11 = DISPLAY.blit(ground,(x+410, 370))
-    #ground12 = DISPLAY.blit(ground,(x+440, 370))
-    #ground13 = DISPLAY.blit(ground,(x+470,  370))
-    #ground14 = DISPLAY.blit(ground,(x+500, 370))
-    #ground15 = DISPLAY.blit(ground,(x+530, 370))
-    #ground15 = DISPLAY.blit(ground,(x+560, 370))     
-    #ground16 = DISPLAY.blit(ground,(x+590, 370))
-    #ground17 = DISPLAY.blit(ground,(x+210, 350))
-    #ground18 = DISPLAY.blit(ground,(x+240, 350)) 
-    #ground19 = DISPLAY.blit(ground,(x+270, 350))
-    #ground20 = DISPLAY.blit(ground,(x+300, 350))
-    #ground21 = DISPLAY.blit(ground,(x+330, 350))
-    #ground22 = DISPLAY.blit(ground,(x+360, 350))
-    #ground23 = DISPLAY.blit(ground,(x+390, 350))
-    #ground24 = DISPLAY.blit(ground,(x+410, 350))
-    #ground25 = DISPLAY.blit(ground,(x+440, 350))
-    #ground26 = DISPLAY.blit(ground,(x+470, 350))
-    #ground27 = DISPLAY.blit(ground,(x+500, 350))
-    #ground28 = DISPLAY.blit(ground,(x+530, 350))
-    #ground29 = DISPLAY.blit(ground,(x+560, 350))
-    #ground30 = DISPLAY.blit(ground,(x+590, 350))    
-    #ground31 = DISPLAY.blit(ground,(x+590, 320))
-    #ground32 = DISPLAY.blit(ground,(x+560, 320))  
-    #ground33 = DISPLAY.blit(ground,(x+530, 320)) 
-    #ground34 = DISPLAY.blit(ground,(x+500, 320)) 
-    #ground35 = DISPLAY.blit(ground,(x+470, 320)) 
-    #ground36 = DISPLAY.blit(ground,(x+440, 320)) 
-    #ground37 = DISPLAY.blit(ground,(x+410, 320)) 
-    #ground38 = DISPLAY.blit(ground,(x+380, 320)) 
-    #ground39 = DISPLAY.blit(ground,(x+350, 320)) 
-    #ground40 = DISPLAY.blit(ground,(x+320, 320)) 
-    #ground41 = DISPLAY.blit(ground,(x+290, 320)) 
-    #ground42 = DISPLAY.blit(ground,(x+260, 320))
-    #ground43 = DISPLAY.blit(ground,(x+230, 320))      
-    #ground44 = DISPLAY.blit(ground,(x+210, 320))1000
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+19, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+110, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+120, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+80, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+60, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+40, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+20, 390))
-    ground_with_grass2 = DISPLAY.blit(ground_with_grass,(x+10, 390))
+    
     
 
     #update the screen
