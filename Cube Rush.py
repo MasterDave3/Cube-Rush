@@ -1,6 +1,6 @@
 import pygame # Importing pygame just cuz
 import random # Importing random for the lists of ground and clouds and other stuff
-import time  # Importing time for the bullet firing thing so far 
+import time  # Importing time for the bullet firing thing,- so far 
 pygame.init()
 
 #set game fps
