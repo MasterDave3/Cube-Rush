@@ -1,0 +1,30 @@
+import pygame 
+pygame.init()
+
+#set game fps
+clock = pygame.time.Clock()
+FPS = 60
+
+#create game window
+X = 900
+Y = 400
+
+DISPLAY = pygame.display.set_mode((X, Y))
+pygame.display.set_caption("Cube rush")
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+
+
+
+
+
+
+#update the screen
+    pygame.display.flip()
+#exits the game
+pygame.quit()   
